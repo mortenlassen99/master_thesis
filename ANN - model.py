@@ -58,10 +58,13 @@ def build_model(hp):
                         l2=hp.Float('l2', min_value=0.01, max_value=0.25, step=0.01))))
     
     for i in range(hp.Int('n_layers', 1, 10)):  #
-        model.add(Dense(hp.Int(f'dense_{i}_units', min_value=13, max_value=416, step=32), activation='relu', kernel_regularizer=l1_l2(l1=hp.Float(f'l1_{i}', min_value=0.01, max_value=0.1, step=0.01), l2=hp.Float(f'l2_{i}', min_value=0.01, max_value=0.1, step=0.01))))
+        model.add(Dense(hp.Int(f'dense_{i}_units', min_value=13, max_value=416, step=32), 
+                        activation='relu', 
+                        kernel_regularizer=l1_l2(
+                            l1=hp.Float(f'l1_{i}', min_value=0.01, max_value=0.1, step=0.01), 
+                            l2=hp.Float(f'l2_{i}', min_value=0.01, max_value=0.1, step=0.01))))
         model.add(Dropout(hp.Float('dropout', 0, 0.5, step=0.01)))
     
-
     model.add(Dense(1, activation=None)) 
 
     model.compile(optimizer=Adam(learning_rate=hp.Float('learning_rate', min_value=1e-5, max_value=1e-1, sampling='log')),
@@ -69,8 +72,6 @@ def build_model(hp):
                   metrics=['mean_squared_error'])
 
     return model
-
-
 
 directory = 'my_dir/intro_to_kt'
 if os.path.exists(directory):
@@ -116,7 +117,6 @@ for fold, (træning_index, validering_index) in enumerate(kf.split(X_forberedt))
         bedste_model = tuning_modellen.get_best_models(num_models=1)[0]
 
 bedste_model.save('path_to_save_model')
-
 
 def optimal_model():
     model = Sequential()
@@ -179,7 +179,6 @@ plt.xlabel('Antal epochs')
 plt.legend(['Træning', 'Test'], loc='upper right')
 plt.show()
 
-
 prædiktioner = modellen.predict(X_forberedt)
 
 y_værdier = y.values
@@ -188,17 +187,6 @@ y_værdier = y_værdier.reshape(-1, 1)
 mape = np.mean(100 * np.abs((y_værdier - prædiktioner) / y_værdier))
 
 print(f"MAPE baseret på den bedste model: {mape:.2f}%")
-
-
-prædiktioner = optimal_model.predict(X_forberedt)
-
-y_værdier = y.values
-y_værdier = y_værdier.reshape(-1, 1)
-
-mape = np.mean(100 * np.abs((y_værdier - prædiktioner) / y_værdier))
-
-print(f"MAPE baseret på den bedste model: {mape:.2f}%")
-
 
 y_værdier_i_millioner = y_værdier / 1e6
 predictions_i_millioner = prædiktioner / 1e6
@@ -211,6 +199,3 @@ plt.ylabel('Estimerede værdier (millioner)')
 plt.plot([y_værdier_i_millioner.min(), y_værdier_i_millioner.max()], 
          [y_værdier_i_millioner.min(), y_værdier_i_millioner.max()], 'k--', lw=2)
 plt.show()
-
-
-
